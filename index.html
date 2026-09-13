@@ -199,7 +199,10 @@
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
+    border: none;
     border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
     box-shadow: 0 2px 8px rgba(74, 23, 23, 0.35);
     transition: background 0.15s ease, transform 0.15s ease;
   }
@@ -335,6 +338,168 @@
     color: #8a806c;
   }
 
+  #modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(43, 34, 34, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s;
+  }
+
+  #modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal {
+    display: none;
+    width: 100%;
+    max-width: 430px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: #fffdf7;
+    border: 1px solid #e5decf;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(43, 34, 34, 0.28);
+    padding: 24px 22px;
+  }
+
+  .modal.open {
+    display: block;
+  }
+
+  .modal h2 {
+    margin: 0 0 10px;
+    font-size: 19px;
+    line-height: 1.25;
+    color: #4a1717;
+  }
+
+  .modal p {
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6f6757;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease;
+  }
+
+  .btn-primary {
+    background: #4a1717;
+    color: #f7f4ee;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: #330f0f;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: #6f6757;
+    border: 1px solid #e5decf;
+  }
+
+  .btn-secondary:hover {
+    color: #4a1717;
+    border-color: #b89a9a;
+  }
+
+  .modal-fineprint {
+    display: block;
+    margin-top: 14px;
+    font-size: 11.5px;
+    color: #8a806c;
+    text-align: center;
+  }
+
+  .form-field {
+    margin: 0 0 12px;
+  }
+
+  .form-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8a806c;
+  }
+
+  .form-field input,
+  .form-field select,
+  .form-field textarea {
+    width: 100%;
+    padding: 9px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #2d2a24;
+    background: #fbf8f1;
+    border: 1px solid #e5decf;
+    border-radius: 8px;
+  }
+
+  .form-field input:focus,
+  .form-field select:focus,
+  .form-field textarea:focus {
+    outline: 2px solid #b89a9a;
+    outline-offset: 1px;
+  }
+
+  .form-field textarea {
+    resize: vertical;
+    min-height: 70px;
+  }
+
+  .form-status {
+    margin: 12px 0 0;
+    min-height: 1em;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .form-status.error {
+    color: #7a2e2e;
+    font-weight: 600;
+  }
+
+  .form-status.success {
+    color: #2d2a24;
+    font-weight: 600;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.55;
+    cursor: default;
+    background: #4a1717;
+    transform: none;
+  }
+
   @media (max-width: 640px) {
     #info {
       left: 0;
@@ -421,7 +586,7 @@
   <aside id="info" aria-live="polite"></aside>
 </main>
 
-<a id="add-link" href="mailto:info@fabricationbelfast.com?subject=Add%20group%2Findividual">Add group/individual</a>
+<button id="add-link" type="button">Add group/individual</button>
 
 <button id="globe-btn" type="button" aria-label="Idirnáisiúnta — international endorsements">
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -450,6 +615,48 @@
   </svg>
 </button>
 
+<div id="modal-overlay" role="presentation">
+  <div class="modal" id="paywall-modal" role="dialog" aria-modal="true" aria-labelledby="paywall-title">
+    <h2 id="paywall-title">Add a group or individual</h2>
+    <p>Listings cost a one-off fee of <strong>€10</strong>, which covers verification and moderation of your submission. This is not a subscription.</p>
+    <p>You'll be taken to a secure Stripe checkout. After payment you'll return here automatically to submit the details.</p>
+    <div class="modal-actions">
+      <a class="btn-primary" id="paywall-pay-btn" href="#">Pay €10</a>
+      <button class="btn-secondary" type="button" id="paywall-cancel">Cancel</button>
+    </div>
+    <span class="modal-fineprint">Payments are processed by Stripe — card details never touch this site.</span>
+  </div>
+
+  <div class="modal" id="submit-modal" role="dialog" aria-modal="true" aria-labelledby="submit-title">
+    <h2 id="submit-title">Submission details</h2>
+    <p>Payment confirmed. Tell us about the group or individual you'd like to add.</p>
+    <form id="submit-form" novalidate>
+      <div class="form-field">
+        <label for="sf-name">Name</label>
+        <input id="sf-name" name="name" type="text" required maxlength="120" placeholder="Group or individual name" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label for="sf-county">County</label>
+        <select id="sf-county" name="county" required>
+          <option value="" selected disabled>Select a county…</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="sf-note">Note</label>
+        <textarea id="sf-note" name="note" maxlength="500" placeholder="Short description (optional)"></textarea>
+      </div>
+      <div class="form-field">
+        <label for="sf-url">Source URL</label>
+        <input id="sf-url" name="url" type="url" maxlength="300" placeholder="https://example.com">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" type="submit" id="sf-submit">Submit listing</button>
+      </div>
+      <p class="form-status" id="sf-status" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
 <div id="tooltip" role="tooltip"></div>
 
 <script>
@@ -463,6 +670,10 @@
   var errorEl = document.getElementById('map-error');
   var paperListEl = document.getElementById('paper-list');
   var bodyEl = document.body;
+
+  var PAYMENT_LINK = 'https://buy.stripe.com/eVqeVd0vMblAeA91AB0ZW00';
+  var SUBMIT_ENDPOINT = 'https://submit-endorsement-515035956084.europe-west1.run.app'
+  var SESSION_KEY = 'nil_paid_session';
 
   var stats = null;
   var geojson = null;
@@ -717,8 +928,145 @@
 
   globeBtn.addEventListener('click', showInternational);
 
+  var modalOverlay = document.getElementById('modal-overlay');
+  var paywallModal = document.getElementById('paywall-modal');
+  var submitModal = document.getElementById('submit-modal');
+  var addLink = document.getElementById('add-link');
+  var paywallPayBtn = document.getElementById('paywall-pay-btn');
+  var paywallCancelBtn = document.getElementById('paywall-cancel');
+  var submitForm = document.getElementById('submit-form');
+  var sfStatus = document.getElementById('sf-status');
+  var sfCounty = document.getElementById('sf-county');
+
+  paywallPayBtn.href = PAYMENT_LINK;
+
+  function populateCounties() {
+    if (sfCounty.options.length > 1 || !stats) return;
+    Object.keys(stats).forEach(function (key) {
+      if (key === 'papers') return;
+      var entry = stats[key];
+      if (!entry || !entry.name_ga) return;
+      var option = document.createElement('option');
+      option.value = key;
+      option.textContent = entry.name_en
+        ? entry.name_ga + ' — ' + entry.name_en
+        : entry.name_ga;
+      sfCounty.appendChild(option);
+    });
+  }
+
+  function setStatus(message, isError) {
+    sfStatus.textContent = message;
+    sfStatus.className = 'form-status' + (isError ? ' error' : ' success');
+  }
+
+  function openSubmitModal() {
+    paywallModal.classList.remove('open');
+    submitModal.classList.add('open');
+    sfStatus.textContent = '';
+    sfStatus.className = 'form-status';
+    populateCounties();
+    modalOverlay.classList.add('open');
+  }
+
+  function openPaywall() {
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      openSubmitModal();
+      return;
+    }
+    submitModal.classList.remove('open');
+    paywallModal.classList.add('open');
+    modalOverlay.classList.add('open');
+  }
+
+  function closeModals() {
+    modalOverlay.classList.remove('open');
+    paywallModal.classList.remove('open');
+    submitModal.classList.remove('open');
+  }
+
+  addLink.addEventListener('click', openPaywall);
+  paywallCancelBtn.addEventListener('click', closeModals);
+  modalOverlay.addEventListener('click', function (event) {
+    if (event.target === modalOverlay) closeModals();
+  });
+
+  submitForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var sessionId = sessionStorage.getItem(SESSION_KEY);
+    if (!sessionId) {
+      setStatus('No verified payment found. Please complete the payment step first.', true);
+      return;
+    }
+
+    var nameField = document.getElementById('sf-name');
+    var urlField = document.getElementById('sf-url');
+    if (!nameField.value.trim()) {
+      setStatus('Please enter a name.', true);
+      nameField.focus();
+      return;
+    }
+    if (!sfCounty.value) {
+      setStatus('Please select a county.', true);
+      sfCounty.focus();
+      return;
+    }
+    var urlValue = urlField.value.trim();
+    if (urlValue && !isSafeUrl(urlValue)) {
+      setStatus('Source URL must start with http:// or https://.', true);
+      urlField.focus();
+      return;
+    }
+
+    var payload = {
+      session_id: sessionId,
+      name: nameField.value.trim(),
+      county: sfCounty.value,
+      note: document.getElementById('sf-note').value.trim(),
+      url: urlValue
+    };
+
+    var submitBtn = document.getElementById('sf-submit');
+    submitBtn.disabled = true;
+    setStatus('Submitting…', false);
+
+    fetch(SUBMIT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Server responded ' + res.status);
+      return res.json().catch(function () { return {}; });
+    }).then(function () {
+      sessionStorage.removeItem(SESSION_KEY);
+      submitForm.reset();
+      setStatus('Thank you — your submission has been received and will be reviewed before it appears.', false);
+    }).catch(function (err) {
+      submitBtn.disabled = false;
+      setStatus('Submission failed (' + err.message + '). Your payment is still linked to this browser — please try again.', true);
+    });
+  });
+
+  (function handlePaidReturn() {
+    if (!window.URLSearchParams || !window.history.replaceState) return;
+    var params = new URLSearchParams(window.location.search);
+    var sessionId = params.get('session_id');
+    if (params.get('paid') !== '1' || !sessionId) return;
+    try {
+      sessionStorage.setItem(SESSION_KEY, sessionId);
+    } catch (err) {}
+    params.delete('paid');
+    params.delete('session_id');
+    var qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+    openSubmitModal();
+  })();
+
   document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') clearSelection();
+    if (event.key === 'Escape') {
+      clearSelection();
+      closeModals();
+    }
   });
 
   var resizeTimer = null;
@@ -737,6 +1085,7 @@
     stats = results[1] || {};
     renderMap();
     renderPapers(stats.papers);
+    populateCounties();
     console.log('Ireland map loaded:', geojson.features.length, 'counties;',
       Object.keys(stats).length, 'data entries');
   }).catch(function (err) {
